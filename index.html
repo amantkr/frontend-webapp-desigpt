@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>North Delhi Webapp</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #202123; /* Dark background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: #e5e5e5; /* Light text color */
+        }
+
+        .container {
+            background: #333; /* Chat background color */
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 500px; /* Reduced width */
+            height: 100vh; /* Fullscreen height */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #4a4f5a; /* Header background color */
+            color: #ffffff;
+            padding: 16px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            border-bottom: 1px solid #444;
+        }
+
+        .chat {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            border-bottom: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .user {
+            align-self: flex-end;
+            background: #1c1c1e; /* Darker black for user messages */
+            color: #ffffff;
+        }
+
+        .bot {
+            align-self: flex-start;
+            background: #444; /* Bot message background color */
+            color: #e5e5e5;
+        }
+
+        .input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #444;
+            background: #333; /* Input container background color */
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #555; /* Input border color */
+            border-radius: 20px;
+            font-size: 16px;
+            color: #e5e5e5; /* Input text color */
+            background: #222; /* Input background color */
+            margin-right: 10px;
+        }
+
+        input[type="text"]:focus {
+            border-color: #1c1c1e; /* Input focus border color */
+            outline: none;
+        }
+
+        button {
+            background-color: #1c1c1e; /* Darker black for the button */
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #333; /* Button hover color */
+        }
+
+        .loading-container {
+            display: none; /* Hide loader initially */
+            text-align: center;
+            padding: 10px;
+        }
+
+        .loader {
+            border: 4px solid #444; /* Loader border color */
+            border-top: 4px solid #1c1c1e; /* Loader spinner color */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Desi GPT</div>
+        <div class="chat" id="chat">
+            <!-- Chat messages will go here -->
+        </div>
+        <div class="input-container">
+            <input type="text" id="prompt" placeholder="Type your message...">
+            <button id="askButton" onclick="ask()">Send</button>
+        </div>
+        <div class="loading-container" id="loader">
+            <div class="loader"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        async function ask() {
+            const prompt = document.getElementById('prompt').value;
+            const chat = document.getElementById('chat');
+            const loader = document.getElementById('loader');
+            const askButton = document.getElementById('askButton');
+
+            // Append user message to chat
+            chat.innerHTML += `<div class="message user">${prompt}</div>`;
+            document.getElementById('prompt').value = '';
+
+            // Show loader and hide button
+            loader.style.display = 'block';
+            askButton.style.display = 'none';
+
+            try {
+                const response = await fetch(`http://localhost:3000/ask-with-north-delhi-accent?prompt=${encodeURIComponent(prompt)}`);
+                const text = await response.text();
+
+                // Append bot response to chat
+                chat.innerHTML += `<div class="message bot">${text}</div>`;
+                chat.scrollTop = chat.scrollHeight; // Scroll to bottom
+            } catch (error) {
+                chat.innerHTML += `<div class="message bot">Error fetching response</div>`;
+            } finally {
+                // Hide loader and show button
+                loader.style.display = 'none';
+                askButton.style.display = 'block';
+                chat.scrollTop = chat.scrollHeight; // Scroll to bottom
+            }
+        }
+    </script>
+</body>
+</html>
